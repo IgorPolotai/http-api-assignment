@@ -1,7 +1,7 @@
 const fs = require('fs'); // pull in the file system module
 
 const index = fs.readFileSync(`${__dirname}/../client/client.html`);
-const css = fs.readFileSync(`${__dirname}/../client/styles.css`);
+const css = fs.readFileSync(`${__dirname}/../client/style.css`);
 
 const respond = (request, response, content, type, status) => {
   response.writeHead(status, {
@@ -19,19 +19,19 @@ const getCSS = (request, response) => respond(request, response, css, 'text/css'
 const createResponse = (request, response, message, id, status) => {
   const obj = {
     message: `Message: ${message}`,
-    id: id,
+    id,
   };
 
   if (request.acceptedTypes[0] === 'text/xml') {
     let xmlString = '<response>';
     xmlString += `<message>${obj.message}</message>`;
-    if(id !== "success") {xmlString += `<id>${obj.id}</id>`;}
+    if (status !== 200) { xmlString += `<id>${obj.id}</id>`; }
     xmlString += '</response>';
     console.log(xmlString);
     return respond(request, response, xmlString, 'text/xml', status);
   }
 
-  if(id === "success") {
+  if (status === 200) {
     delete obj.id;
   }
   const objString = JSON.stringify(obj);
@@ -42,21 +42,29 @@ const createResponse = (request, response, message, id, status) => {
   return respond(request, response, objString, 'application/json', status);
 };
 
-const getSuccess = (request, response) => createResponse(request, response, "This is a successful response.", "success", 200);
+const getSuccess = (request, response) => createResponse(request, response, 'This is a successful response.', 'success', 200);
 
 const getBadRequest = (request, response) => {
-    createResponse(request, response, "This is a successful response", "success", 200);
-}
+  if (!request.query.valid || request.query.valid !== 'true') {
+    createResponse(request, response, 'Missing valid query query parameter set to true.', 'badRequest', 400);
+  }
+  createResponse(request, response, 'This request has the required parameters.', 'badRequest', 200);
+};
 
-const getUnauthorized = (request, response) => createResponse(request, response, "This is a successful response", "success", 200);
+const getUnauthorized = (request, response) => {
+  if (!request.query.loggedIn || request.query.loggedIn !== 'yes') {
+    createResponse(request, response, 'Missing loggedIn query parameter set to yes.', 'unauthorized', 401);
+  }
+  createResponse(request, response, 'You have successfully viewed the content.', 'unauthorized', 200);
+};
 
-const getForbidden = (request, response) => createResponse(request, response, "You do not have access to this content.", "forbidden", 403);
+const getForbidden = (request, response) => createResponse(request, response, 'You do not have access to this content.', 'forbidden', 403);
 
-const getInternal = (request, response) => createResponse(request, response, "TInternal Server Error. Something went wrong.", "internalError", 500);
+const getInternal = (request, response) => createResponse(request, response, 'TInternal Server Error. Something went wrong.', 'internalError', 500);
 
-const getNotImplemented = (request, response) => createResponse(request, response, "A get request for this page has not been implemented yet. Check again later for updated content.", "notImplemented", 501);
+const getNotImplemented = (request, response) => createResponse(request, response, 'A get request for this page has not been implemented yet. Check again later for updated content.', 'notImplemented', 501);
 
-const getNotFound = (request, response) => createResponse(request, response, "The page you are looking for was not found.", "notFound", 404);
+const getNotFound = (request, response) => createResponse(request, response, 'The page you are looking for was not found.', 'notFound', 404);
 
 //     '/': responseHandler.getIndex,
 //     '/style.css': responseHandler.getCSS,

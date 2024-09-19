@@ -1,58 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <title>Our simple HTTP server</title>
   <link rel="stylesheet" type="text/css" href="/style.css">
-  
+
   <script>
-    const handleResponse = async (response) => {
-      // response.text().then((resText) => {
-      //   console.log(resText);
-      //   const contentType = response.headers.get('Content-Type');
-      //   const content = document.getElementById('content');
-      //   content.appendChild(document.createElement('hr'));
+    const handleResponse = (response) => {
+      response.text().then((resText) => {
+        const p = document.createElement('p');
 
-      //   const h1 = document.createElement('h1');
-      //   const p = document.createElement('p');
-      //   const h2 = document.createElement('h2');
-      //   const rawData = document.createElement('p');
+        const contentType = response.headers.get('Content-Type');
 
-      //   h2.textContent = contentType;
-      //   rawData.textContent = resText;
-        
-      //   if (contentType === 'application/json') {
-      //     const parsedResponse = JSON.parse(resText);
-      //     h1.textContent = `Name: ${parsedResponse.name}`;
-      //     p.textContent = `Age: ${parsedResponse.age}`;
-      //   } else if (contentType === 'text/xml') {
-      //     //fetch does not support xml parsing, but your browser can
-      //     const parsedResponse = new window.DOMParser().parseFromString(resText, 'text/xml');
-      //     h1.textContent = 'Name: ' + parsedResponse.querySelector('name').textContent;
-      //     p.textContent = 'Age: ' + parsedResponse.querySelector('age').textContent;
-      //   }
+        if (contentType === 'application/json') {
+          const parsedResponse = JSON.parse(resText);
+          p.textContent = `${parsedResponse.message}`;
+        } else if (contentType === 'text/xml') {
+          //fetch does not support xml parsing, but your browser can
+          const parsedResponse = new window.DOMParser().parseFromString(resText, 'text/xml');
+          p.textContent = parsedResponse.querySelector('message').textContent;
+        }
 
-      //   content.append(h1);
-      //   content.append(p);
-      //   content.append(h2);
-      //   content.append(rawData);
-      // }); //this is a promise
+        const content = document.getElementById('content');
 
-      const content = document.getElementById('content');
+        switch (response.status) {
+          case 200: //Success
+            content.innerHTML = `<b>Success</b>`;
+            break;
+          case 400: //Bad Request
+            content.innerHTML = `<b>Bad Request</b>`;
+            break;
+          case 401: //Unauthorized
+            content.innerHTML = `<b>Unauthorized</b>`;
+            break;
+          case 403: //Forbidden
+            content.innerHTML = `<b>Forbidden</b>`;
+            break;
+          case 500: //Internal
+            content.innerHTML = `<b>Internal Server Error</b>`;
+            break;
+          case 501: //Not Implemented
+            content.innerHTML = `<b>Not Implemented</b>`;
+            break;
+          case 404: //Not Found
+            content.innerHTML = `<b>Resource Not Found</b>`;
+            break;
+          default: //Anything Else - 404
+            content.innerHTML = `<b>Resource Not Found</b>
+            <p>Status Code not Implemented By Client</p>`;
+            break;
+        }
 
-      switch(response.status) {
-        case 200: //Success
-          content.innerHTML = `<b>Success</b>`;
-          break;
-        case 400: //Bad Request
-          content.innerHTML = `<b>Bad Request</b>`;
-          break;
-        case 404: //Not Found
-          content.innerHTML = `<b>Not Found</b>`;
-          break;
-        default: //Anything Else
-          content.innerHTML = `<p>Status Code not Implemented By Client</p>`;
-          break;
-      }
+        content.append(p);
+      });
     }
 
     const sendFetchRequest = (url, acceptedType) => {
@@ -63,26 +63,22 @@
           'Accept': acceptedType,
         }
       };
-      
+
       const fetchPromise = fetch(url, options);
-      fetchPromise.then((response) => {handleResponse(response)});
+      fetchPromise.then((response) => { handleResponse(response) });
     };
 
     const init = () => {
-      const jsonButton = document.querySelector("#getCatsJSON");
-      const xmlButton = document.querySelector("#getCatsXML");
-
-      //Two ways of attacting a function to a button
-
-      const requestJson = () => sendFetchRequest('/cats', 'application/json');
-      jsonButton.addEventListener('click', requestJson);
-
-      xmlButton.addEventListener('click', () => sendFetchRequest('./cats', 'text/xml'));
+      const sendButton = document.querySelector("#send");
+      let selectedUrl = document.getElementById("page").value;
+      let selectedType = document.getElementById("type").value;
+      sendButton.addEventListener('click', () => sendFetchRequest(selectedUrl, selectedType));
     };
 
     window.onload = init;
   </script>
 </head>
+
 <body>
   <section id="top">
     <h3>Status Code Tests</h3>
@@ -104,4 +100,5 @@
   <section id="content">
   </section>
 </body>
+
 </html>
