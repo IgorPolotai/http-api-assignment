@@ -5,7 +5,65 @@
   <link rel="stylesheet" type="text/css" href="/style.css">
   
   <script>
+    const handleResponse = (response) => {
+      response.text().then((resText) => {
+        console.log(resText);
+        const contentType = response.headers.get('Content-Type');
+        const content = document.getElementById('content');
+        content.appendChild(document.createElement('hr'));
 
+        const h1 = document.createElement('h1');
+        const p = document.createElement('p');
+        const h2 = document.createElement('h2');
+        const rawData = document.createElement('p');
+
+        h2.textContent = contentType;
+        rawData.textContent = resText;
+        
+        if (contentType === 'application/json') {
+          const parsedResponse = JSON.parse(resText);
+          h1.textContent = `Name: ${parsedResponse.name}`;
+          p.textContent = `Age: ${parsedResponse.age}`;
+        } else if (contentType === 'text/xml') {
+          //fetch does not support xml parsing, but your browser can
+          const parsedResponse = new window.DOMParser().parseFromString(resText, 'text/xml');
+          h1.textContent = 'Name: ' + parsedResponse.querySelector('name').textContent;
+          p.textContent = 'Age: ' + parsedResponse.querySelector('age').textContent;
+        }
+
+        content.append(h1);
+        content.append(p);
+        content.append(h2);
+        content.append(rawData);
+      }); //this is a promise
+    }
+
+    const sendFetchRequest = (url, acceptedType) => {
+      //XMLHttpRequest is the old way for Web 1.0 or 2.0
+      const options = {
+        method: 'GET',
+        headers: {
+          'Accept': acceptedType,
+        }
+      };
+      
+      const fetchPromise = fetch(url, options);
+      fetchPromise.then((response) => {handleResponse(response)});
+    };
+
+    const init = () => {
+      const jsonButton = document.querySelector("#getCatsJSON");
+      const xmlButton = document.querySelector("#getCatsXML");
+
+      //Two ways of attacting a function to a button
+
+      const requestJson = () => sendFetchRequest('/cats', 'application/json');
+      jsonButton.addEventListener('click', requestJson);
+
+      xmlButton.addEventListener('click', () => sendFetchRequest('./cats', 'text/xml'));
+    };
+
+    window.onload = init;
   </script>
 </head>
 <body>
