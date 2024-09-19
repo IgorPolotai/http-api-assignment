@@ -5,37 +5,54 @@
   <link rel="stylesheet" type="text/css" href="/style.css">
   
   <script>
-    const handleResponse = (response) => {
-      response.text().then((resText) => {
-        console.log(resText);
-        const contentType = response.headers.get('Content-Type');
-        const content = document.getElementById('content');
-        content.appendChild(document.createElement('hr'));
+    const handleResponse = async (response) => {
+      // response.text().then((resText) => {
+      //   console.log(resText);
+      //   const contentType = response.headers.get('Content-Type');
+      //   const content = document.getElementById('content');
+      //   content.appendChild(document.createElement('hr'));
 
-        const h1 = document.createElement('h1');
-        const p = document.createElement('p');
-        const h2 = document.createElement('h2');
-        const rawData = document.createElement('p');
+      //   const h1 = document.createElement('h1');
+      //   const p = document.createElement('p');
+      //   const h2 = document.createElement('h2');
+      //   const rawData = document.createElement('p');
 
-        h2.textContent = contentType;
-        rawData.textContent = resText;
+      //   h2.textContent = contentType;
+      //   rawData.textContent = resText;
         
-        if (contentType === 'application/json') {
-          const parsedResponse = JSON.parse(resText);
-          h1.textContent = `Name: ${parsedResponse.name}`;
-          p.textContent = `Age: ${parsedResponse.age}`;
-        } else if (contentType === 'text/xml') {
-          //fetch does not support xml parsing, but your browser can
-          const parsedResponse = new window.DOMParser().parseFromString(resText, 'text/xml');
-          h1.textContent = 'Name: ' + parsedResponse.querySelector('name').textContent;
-          p.textContent = 'Age: ' + parsedResponse.querySelector('age').textContent;
-        }
+      //   if (contentType === 'application/json') {
+      //     const parsedResponse = JSON.parse(resText);
+      //     h1.textContent = `Name: ${parsedResponse.name}`;
+      //     p.textContent = `Age: ${parsedResponse.age}`;
+      //   } else if (contentType === 'text/xml') {
+      //     //fetch does not support xml parsing, but your browser can
+      //     const parsedResponse = new window.DOMParser().parseFromString(resText, 'text/xml');
+      //     h1.textContent = 'Name: ' + parsedResponse.querySelector('name').textContent;
+      //     p.textContent = 'Age: ' + parsedResponse.querySelector('age').textContent;
+      //   }
 
-        content.append(h1);
-        content.append(p);
-        content.append(h2);
-        content.append(rawData);
-      }); //this is a promise
+      //   content.append(h1);
+      //   content.append(p);
+      //   content.append(h2);
+      //   content.append(rawData);
+      // }); //this is a promise
+
+      const content = document.getElementById('content');
+
+      switch(response.status) {
+        case 200: //Success
+          content.innerHTML = `<b>Success</b>`;
+          break;
+        case 400: //Bad Request
+          content.innerHTML = `<b>Bad Request</b>`;
+          break;
+        case 404: //Not Found
+          content.innerHTML = `<b>Not Found</b>`;
+          break;
+        default: //Anything Else
+          content.innerHTML = `<p>Status Code not Implemented By Client</p>`;
+          break;
+      }
     }
 
     const sendFetchRequest = (url, acceptedType) => {

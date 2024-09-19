@@ -5,8 +5,14 @@ const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
 const urlStruct = {
   '/': responseHandler.getIndex,
-  '/cats': responseHandler.getCats,
-  index: responseHandler.getIndex,
+  '/style.css': responseHandler.getCSS,
+  '/success': responseHandler.getSuccess,
+  '/badRequest': responseHandler.getBadRequest,
+  '/unauthorized': responseHandler.getUnauthorized,
+  '/forbidden': responseHandler.getForbidden,
+  '/internal': responseHandler.getInternal,
+  '/notImplemented': responseHandler.getNotImplemented,
+  notFound: responseHandler.getNotFound,
 };
 
 const onRequest = (request, response) => {
@@ -20,7 +26,7 @@ const onRequest = (request, response) => {
   if (urlStruct[parsedURL.pathname]) { // if the user goes to an existing page
     urlStruct[parsedURL.pathname](request, response);
   } else { // if the page does not exist
-    urlStruct.index(request, response);
+    urlStruct.notFound(request, response);
   }
 };
 
