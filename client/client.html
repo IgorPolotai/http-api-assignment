@@ -70,9 +70,11 @@
 
     const init = () => {
       const sendButton = document.querySelector("#send");
-      let selectedUrl = document.getElementById("page").value;
-      let selectedType = document.getElementById("type").value;
-      sendButton.addEventListener('click', () => sendFetchRequest(selectedUrl, selectedType));
+      sendButton.addEventListener('click', () => {
+        let selectedUrl = document.getElementById("page").value;
+        let selectedType = document.getElementById("type").value;
+        sendFetchRequest(selectedUrl, selectedType);
+      });
     };
 
     window.onload = init;

@@ -23,6 +23,7 @@ const createResponse = (request, response, message, id, status) => {
   };
 
   if (request.acceptedTypes[0] === 'text/xml') {
+    console.log("xml!");
     let xmlString = '<response>';
     xmlString += `<message>${obj.message}</message>`;
     if (status !== 200) { xmlString += `<id>${obj.id}</id>`; }
@@ -35,6 +36,7 @@ const createResponse = (request, response, message, id, status) => {
     delete obj.id;
   }
   const objString = JSON.stringify(obj);
+  console.log('json!');
   console.log(objString);
   // We can't just send a JSON object, so we need to turn it
   // into a string or bit array. Parse will convert that back
@@ -46,9 +48,9 @@ const getSuccess = (request, response) => createResponse(request, response, 'Thi
 
 const getBadRequest = (request, response) => {
   if (!request.query.valid || request.query.valid !== 'true') {
-    createResponse(request, response, 'Missing valid query query parameter set to true.', 'badRequest', 400);
+    return createResponse(request, response, 'Missing valid query query parameter set to true.', 'badRequest', 400);
   }
-  createResponse(request, response, 'This request has the required parameters.', 'badRequest', 200);
+  return createResponse(request, response, 'This request has the required parameters.', 'badRequest', 200);
 };
 
 const getUnauthorized = (request, response) => {
@@ -60,21 +62,11 @@ const getUnauthorized = (request, response) => {
 
 const getForbidden = (request, response) => createResponse(request, response, 'You do not have access to this content.', 'forbidden', 403);
 
-const getInternal = (request, response) => createResponse(request, response, 'TInternal Server Error. Something went wrong.', 'internalError', 500);
+const getInternal = (request, response) => createResponse(request, response, 'Internal Server Error. Something went wrong.', 'internalError', 500);
 
 const getNotImplemented = (request, response) => createResponse(request, response, 'A get request for this page has not been implemented yet. Check again later for updated content.', 'notImplemented', 501);
 
 const getNotFound = (request, response) => createResponse(request, response, 'The page you are looking for was not found.', 'notFound', 404);
-
-//     '/': responseHandler.getIndex,
-//     '/style.css': responseHandler.getCSS,
-//     '/success': responseHandler.getSuccess,
-//     '/badRequest': responseHandler.getBadRequest,
-//     '/unauthorized': responseHandler.getUnauthorized,
-//     '/forbidden': responseHandler.getForbidden,
-//     '/internal': responseHandler.getInternal,
-//     '/notImplemented': responseHandler.getNotImplemented,
-//     notFound: responseHandler.getNotFound,
 
 module.exports = {
   getIndex,
