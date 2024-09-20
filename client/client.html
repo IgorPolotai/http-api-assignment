@@ -2,23 +2,26 @@
 <html lang="en">
 
 <head>
-  <title>Our simple HTTP server</title>
+  <title>Our Simple HTTP Server</title>
   <link rel="stylesheet" type="text/css" href="/style.css">
 
   <script>
+    //This parses the data recieved back from createResponse in responses.js.
+    //First it will parse and print out based on whether it is XML or JSON.
+    //It will then use the Switch statement to update the content on the page accordingly.
     const handleResponse = (response) => {
       response.text().then((resText) => {
         const p = document.createElement('p');
-
         const contentType = response.headers.get('Content-Type');
+        console.log(resText);
 
         if (contentType === 'application/json') {
           const parsedResponse = JSON.parse(resText);
-          p.textContent = `${parsedResponse.message}`;
-        } else if (contentType === 'text/xml') {
-          //fetch does not support xml parsing, but your browser can
+          p.textContent = `Message: ${parsedResponse.message}`;
+        } 
+        else if (contentType === 'text/xml') {
           const parsedResponse = new window.DOMParser().parseFromString(resText, 'text/xml');
-          p.textContent = parsedResponse.querySelector('message').textContent;
+          p.textContent = "Message: " + parsedResponse.querySelector('message').textContent;
         }
 
         const content = document.getElementById('content');
@@ -55,8 +58,9 @@
       });
     }
 
+    //Upon hitting the send button this sends a fetch accept header.
+    //It then recieves the response back in a promise and calls handleResponse.
     const sendFetchRequest = (url, acceptedType) => {
-      //XMLHttpRequest is the old way for Web 1.0 or 2.0
       const options = {
         method: 'GET',
         headers: {
@@ -68,6 +72,7 @@
       fetchPromise.then((response) => { handleResponse(response) });
     };
 
+    //Sets up the send button click event to send the fetch request
     const init = () => {
       const sendButton = document.querySelector("#send");
       sendButton.addEventListener('click', () => {
